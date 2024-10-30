@@ -1,0 +1,23 @@
+<html lang="en">
+<head>
+    <title>Employee Login</title>
+</head>
+<body>
+    <p><a href="/">Home</a></p>
+    <h1>Employee Login</h1>
+    <b><p>Note: Due to an error with the login server, employees need only press "login" to log in. No credentials required.</p><br>
+    <p>If you are not an employee, please don't press it. :)</p></b>
+    <form method="post">
+        Username:<input name="username"> <br>
+        Password:<input name="password"> <br>
+        <button type="submit"> Login</button>
+    </form>
+    <br>
+    {% if emp %}
+        <a href="/create/">Create</a>
+        <a href="/read/">Read</a>
+        <a href="/update/">Update</a>
+        <a href="/delete/">Delete</a>
+    {% endif %}
+</body>
+</html>
