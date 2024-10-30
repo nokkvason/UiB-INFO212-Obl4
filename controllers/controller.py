@@ -1,22 +1,40 @@
 from main import app
 from flask import request
+from models.model import create_new_customer
 
 
-@app.route('/', methods=['GET', 'POST'])
-def index(data=None):
-    if request.method == 'POST':
-        data = request.args['sent_data']
-
-        if data is not None:
-            return 'POST with param seems to work'
-        
-        return 'POST(no param) seems to work'
-
+@app.route('/')
+def index():
     return 'GET seems to work'
 
-@app.route('/create', methods=['GET', 'POST'])
-def create(name=None):
-    if request.method == 'POST':
-        name = request.form['name']
 
-    return
+#######################
+# Direct CRUD routing #
+#######################
+@app.route('/crud/')
+def noop_crud():
+    return '''No CRUD operation selected.\n Please use /crud/<x>, replacing <x> with any one of "c", "r", "u" or "d".'''
+
+@app.route('/crud/<string:crud>', methods=['GET', 'POST'])
+def crud(crud):
+    crud = str(crud)
+    valid = ['c', 'r', 'u', 'd']
+
+    if request.method == 'POST':
+        if crud not in valid:
+            return '''Invalid CRUD operation selected.\n Please use /crud/<x>, replacing <x> with any one of "c", "r", "u" or "d".'''
+        
+        if crud == 'c':
+            return create_new_customer(request.form)
+        
+        if crud == 'r':
+            return 'Reading'
+        
+        if crud == 'u':
+            return 'Updating'
+        
+        if crud == 'd':
+            return 'Deleting'
+
+        return 'POST ' + crud
+    return 'GET ' + crud
