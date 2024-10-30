@@ -13,10 +13,30 @@ def emplog(logged_in=False):
 
     return render_template('employeelogin.html', emp=logged_in)
 
+################
+# User options #
+################
 
-################
-# CRUD routing #
-################
+@app.route('/order', methods=['GET', 'POST'])
+def order():
+    return render_template('order.html')
+
+@app.route('/confirm', methods=['GET', 'POST'])
+def confirm():
+    return render_template('confirm.html')
+
+@app.route('/cancel', methods=['GET', 'POST'])
+def cancel():
+    return render_template('cancel.html')
+
+@app.route('/return', methods=['GET', 'POST'])
+def return_car():
+    return render_template('return.html')
+
+
+#######################
+# Manual CRUD routing #
+#######################
 
 @app.route('/create/', methods=['GET', 'POST'])
 def create(name=None):
