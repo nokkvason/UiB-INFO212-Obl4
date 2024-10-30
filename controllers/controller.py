@@ -39,5 +39,5 @@ def crud(crud):
         elif crud == 'd':
             return delete_node(request.form['category'], request.form)
 
-        return 'Something went wrong...'
-    return 'GET ' + crud
+        return 'POST received but no action taken.'
+    return 'GET dunked onnnnnn '
