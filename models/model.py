@@ -7,11 +7,24 @@ def get_connected() -> Driver:
 
     return driver
 
-def create_new_customer(data):
+def create_node(category, data):
+    if category == 'customer':
+        return create_customer(data)
+
+def delete_node(category, id):
+    if category == 'customer':
+        return delete_customer(id)
+
+
+def create_customer(data):
     with get_connected() as driver:
         driver.execute_query('CREATE (a:User {name: $name, age: $age, address: $address})', 
                              name=data['name'], age=data['age'], address=data['address'])
 
-    # result = f'CREATE (a:User {{name:{data['name']}, age:{data['age']}, address:{data['address']}}})'
-
     return 'Creating User node ' + data['name']
+
+def delete_customer(name):
+    with get_connected() as driver:
+        driver.execute_query('MATCH (u:User {name: $name}) DELETE u', name=name['name'])
+
+    return 'Deleting User node ' + name['name']
