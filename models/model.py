@@ -64,20 +64,20 @@ def create_car(data):
 
 
 #Delete
-def delete_customer(name):
+def delete_customer(form):
     with get_connected() as driver:
-        driver.execute_query('MATCH (u:User {name: $name}) DELETE u', name=name['name'])
+        driver.execute_query('MATCH (u:User {name: $name}) DELETE u', name=form['name'])
 
-    return 'Deleting User node ' + name['name']
+    return 'Deleting User node ' + form['name']
 
-def delete_employee(name):
+def delete_employee(form):
     with get_connected() as driver:
-        driver.execute_query('MATCH (e:Employee {name: $name}) DELETE e', name=name['name'])
+        driver.execute_query('MATCH (e:Employee {name: $name}) DELETE e', name=form['name'])
 
-    return 'Deleting Employee node ' + name['name']
+    return 'Deleting Employee node ' + form['name']
 
-def delete_car(id):
+def delete_car(form):
     with get_connected() as driver:
-        driver.execute_query('MATCH (c:Car {id: $id}) DELETE c', id=id['id'])
+        driver.execute_query('MATCH (c:Car {id: $id}) DELETE c', id=form['id'])
 
-    return 'Deleting Car node ' + id['id']
+    return 'Deleting Car node ' + form['id']
