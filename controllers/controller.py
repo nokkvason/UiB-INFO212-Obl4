@@ -1,6 +1,6 @@
 from main import app
 from flask import request
-from models.model import create_node, read_node, update_node, delete_node
+from models.model import create_node, read_node, update_node, delete_node, order_car, has_booked
 
 
 @app.route('/')
@@ -48,17 +48,23 @@ def crud(crud):
 ############################
 
 @app.route('/order-car/<customer_id>/<car_id>')
-def order_car():
-    pass
+def ROUTE_order_car(customer_id, car_id):
+    return order_car(customer_id=customer_id, car_id=car_id)
 
 @app.route('/cancel-order-car/<customer_id>/<car_id>')
-def cancel_order():
+def ROUTE_cancel_order():
     pass
 
 @app.route('/rent-car/<customer_id>/<car_id>')
-def rent_car():
+def ROUTE_rent_car():
     pass
 
 @app.route('/return-car/<customer_id>/<car_id>')
-def return_car():
+def ROUTE_return_car():
     pass
+
+
+#Testing
+@app.route('/test-if-booked/<customer_id>')
+def test_booking(customer_id):
+    return has_booked(customer_id=customer_id)

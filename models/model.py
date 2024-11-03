@@ -138,18 +138,51 @@ def update_car(data):
 #Delete
 def delete_customer(form):
     with get_connected() as driver:
-        driver.execute_query('MATCH (u:User {name: $name}) DELETE u', name=form['name'])
+        driver.execute_query('''MATCH (u:User {name: $name}) 
+                             OPTIONAL MATCH (u)-[r]->()
+                             DELETE u, r''', name=form['name'])
 
     return 'Deleting User node ' + form['name']
 
 def delete_employee(form):
     with get_connected() as driver:
-        driver.execute_query('MATCH (e:Employee {name: $name}) DELETE e', name=form['name'])
+        driver.execute_query('''MATCH (e:Employee {name: $name})
+                             OPTIONAL MATCH (u)-[r]->()
+                             DELETE e, r''', name=form['name'])
 
     return 'Deleting Employee node ' + form['name']
 
 def delete_car(form):
     with get_connected() as driver:
-        driver.execute_query('MATCH (c:Car {id: $id}) DELETE c', id=form['id'])
+        driver.execute_query('''MATCH (c:Car {id: $id}) 
+                             OPTIONAL MATCH (u)-[r]->()
+                             DELETE c, r''', id=form['id'])
 
     return 'Deleting Car node ' + form['id']
+
+
+#Rental Service functions
+def order_car(customer_id, car_id):
+    with get_connected() as driver:
+        if not has_booked(customer_id=customer_id) == 'True':
+            driver.execute_query(f"""
+                                MATCH (u:User {{id: \"{customer_id}\"}})
+                                MATCH (c:Car {{id: \"{car_id}\"}})
+                                SET c.status = 'booked'
+                                CREATE (u)-[:BOOKED]->(c)
+                                """)
+        else:
+            return f"User {customer_id} has already booked a car"
+
+    return f"User {customer_id} has ordered car {car_id}"
+
+
+#Intermediate functions
+def has_booked(customer_id):
+    with get_connected() as driver:
+        result = driver.execute_query(f"""
+                                    MATCH (u:User {{id: \'{customer_id}\'}})
+                                    MATCH (c:Car)
+                                    RETURN EXISTS {{(u)-[BOOKED]->(c)}}
+                                    """).records
+    return str(result[0][0])
