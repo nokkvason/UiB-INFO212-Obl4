@@ -1,6 +1,6 @@
 from main import app
 from flask import request
-from models.model import create_node, read_node, delete_node
+from models.model import create_node, read_node, update_node, delete_node
 
 
 @app.route('/')
@@ -34,7 +34,7 @@ def crud(crud):
             return read_node(request.form['category'], request.form)
         
         elif crud == 'u':
-            return 'Updating'
+            return update_node(request.form['category'], request.form)
         
         elif crud == 'd':
             return delete_node(request.form['category'], request.form)

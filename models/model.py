@@ -30,11 +30,11 @@ def read_node(category, data):
 
 def update_node(category, data):
     if category == 'customer':
-        pass
+        return update_customer(data)
     elif category == 'employee':
-        pass
+        return update_employee(data)
     elif category == 'car':
-        pass
+        return update_car(data)
     else:
         return 'None/invalid category for node update'
 
@@ -77,7 +77,7 @@ def create_car(data):
 def read_customer(form):
     data = []
     with get_connected() as driver:
-        records = driver.execute_query(f'MATCH (u:User {{name: {form["name"]}}}) RETURN u').records
+        records = driver.execute_query(f'MATCH (u:User {{name: \"{form["name"]}\"}}) RETURN u').records
     
     for record in records:
         data.append(record.data())
@@ -87,7 +87,7 @@ def read_customer(form):
 def read_employee(form):
     data = []
     with get_connected() as driver:
-        records = driver.execute_query(f'MATCH (e:Employee {{name: {form["name"]}}}) RETURN e').records
+        records = driver.execute_query(f'MATCH (e:Employee {{name: \"{form["name"]}\"}}) RETURN e').records
 
     for record in records:
         data.append(record.data())
@@ -97,7 +97,7 @@ def read_employee(form):
 def read_car(form):
     data = []
     with get_connected() as driver:
-        records = driver.execute_query(f'MATCH (c:Car {{id: {form["id"]}}}) RETURN c').records
+        records = driver.execute_query(f'MATCH (c:Car {{id: \"{form["id"]}\"}}) RETURN c').records
 
     for record in records:
         data.append(record.data())
@@ -107,6 +107,32 @@ def read_car(form):
 
 
 #Update
+def update_customer(data):
+    with get_connected() as driver:
+        driver.execute_query(f'''
+                             MATCH (u:User {{name: \"{data["name"]}\"}})
+                             SET u.{data["property"]} = \"{data["property_value"]}\"
+                             ''')
+    
+    return f'Updating User node {data["name"]}, setting {data["property"]} to {data["property_value"]}'
+
+def update_employee(data):
+    with get_connected() as driver:
+        driver.execute_query(f'''
+                             MATCH (e:Employee {{name: \"{data["name"]}\"}})
+                             SET e.{data["property"]} = \"{data["property_value"]}\"
+                             ''')
+    
+    return f'Updating Employee node {data["name"]}, setting {data["property"]} to {data["property_value"]}'
+
+def update_car(data):
+    with get_connected() as driver:
+        driver.execute_query(f'''
+                             MATCH (c:Car {{id: \"{data["id"]}\"}})
+                             SET c.{data["property"]} = \"{data["property_value"]}\"
+                             ''')
+    
+    return f'Updating Car node {data["id"]}, setting {data["property"]} to {data["property_value"]}'
 
 
 #Delete
