@@ -53,21 +53,25 @@ def delete_node(category, id):
 # Create
 def create_customer(data):
     with get_connected() as driver:
-        driver.execute_query('CREATE (a:User {name: $name, age: $age, address: $address, id: $id})', 
+        driver.execute_query('CREATE (u:User {name: $name, age: $age, address: $address, id: $id})', 
                              name=data['name'], age=data['age'], address=data['address'], id=data['id'])
 
     return 'Creating User node ' + data['name']
 
 def create_employee(data):
     with get_connected() as driver:
-        driver.execute_query('CREATE (a:Employee {name: $name, age: $age, address: $address, branch: $branch, id: $id})', 
+        driver.execute_query('''
+                             MATCH (b:Branch {name: $branch})
+                             CREATE (e:Employee {name: $name, age: $age, address: $address, branch: $branch, id: $id})-[:WORKS_AT]->(b)''', 
                              name=data['name'], age=data['age'], address=data['address'], branch=data['branch'], id=data['id'])
         
     return 'Creating Employee node ' + data['name']
 
 def create_car(data):
     with get_connected() as driver:
-        driver.execute_query('CREATE (a:Car {make: $make, model: $model, year: $year, location: $location, status: $status, id: $id})',
+        driver.execute_query('''
+                             MATCH (b:Branch {name: $location})
+                             CREATE (c:Car {make: $make, model: $model, year: $year, location: $location, status: $status, id: $id})-[:LOCATED_AT]->(b)''',
                              make=data['make'], model=data['model'], year=data['year'], location=data['location'], status=data['status'], id=data['id'])
         
     return 'Creating Car node ' + data['id']
@@ -164,7 +168,7 @@ def delete_car(form):
 #Rental Service functions
 def order_car(customer_id, car_id):
     with get_connected() as driver:
-        if not has_booked(customer_id=customer_id) == 'True':
+        if not has_booked(customer_id=customer_id, car_id=car_id) == 'True':
             driver.execute_query(f"""
                                 MATCH (u:User {{id: \"{customer_id}\"}})
                                 MATCH (c:Car {{id: \"{car_id}\"}})
@@ -176,13 +180,68 @@ def order_car(customer_id, car_id):
 
     return f"User {customer_id} has ordered car {car_id}"
 
+def cancel_order_car(customer_id, car_id):
+    with get_connected() as driver:
+        if has_booked(customer_id=customer_id, car_id=car_id) == 'True':
+            driver.execute_query(f"""
+                                MATCH (u:User {{id: \"{customer_id}\"}})
+                                MATCH (c:Car {{id: \"{car_id}\"}})
+                                MATCH (u)-[r:BOOKED]->(c)
+                                SET c.status = "available"
+                                DELETE r
+                                """)
+        else:
+            return f"User {customer_id} has not booked this car"
+
+    return f"User {customer_id} has canceled booking for car {car_id}"
+
+def rent_car(customer_id, car_id):
+    with get_connected() as driver:
+        if has_booked(customer_id=customer_id, car_id=car_id) == 'True':
+            driver.execute_query(f"""
+                                MATCH (u:User {{id: \"{customer_id}\"}})
+                                MATCH (c:Car {{id: \"{car_id}\"}})
+                                MATCH (u)-[r:BOOKED]->(c)
+                                SET c.status = "rented"
+                                DELETE r
+                                CREATE (u)-[:RENTED]->(c)
+                                """)
+        else:
+            return f"User {customer_id} has not booked this car"
+        
+    return f"User {customer_id} has rented car {car_id}"
+
+def return_car(customer_id, car_id, car_status):
+    with get_connected() as driver:
+        if has_rented(customer_id=customer_id, car_id=car_id) == 'True':
+            driver.execute_query(f"""
+                                 MATCH (u:User {{id: \'{customer_id}\'}})
+                                 MATCH (c:Car {{id: \'{car_id}\'}})
+                                 MATCH (u)-[r:RENTED]->(c)
+                                 SET c.status = "{car_status}"
+                                 DELETE r
+                                 """)
+        else:
+            return f"User {customer_id} has not rented car {car_id}"
+    
+    return f"User {customer_id} has returned car {car_id}"
+
 
 #Intermediate functions
-def has_booked(customer_id):
+def has_booked(customer_id, car_id):
     with get_connected() as driver:
         result = driver.execute_query(f"""
                                     MATCH (u:User {{id: \'{customer_id}\'}})
-                                    MATCH (c:Car)
+                                    MATCH (c:Car {{id: \'{car_id}\'}})
                                     RETURN EXISTS {{(u)-[BOOKED]->(c)}}
                                     """).records
+    return str(result[0][0])
+
+def has_rented(customer_id, car_id):
+    with get_connected() as driver:
+        result = driver.execute_query(f"""
+                                      MATCH (u:User {{id: \'{customer_id}\'}})
+                                      MATCH (c:Car {{id: \'{car_id}\'}})
+                                      RETURN EXISTS {{(u)-[RENTED]->(c)}}
+                                      """).records
     return str(result[0][0])

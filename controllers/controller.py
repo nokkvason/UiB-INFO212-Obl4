@@ -1,6 +1,6 @@
 from main import app
 from flask import request
-from models.model import create_node, read_node, update_node, delete_node, order_car, has_booked
+from models.model import create_node, read_node, update_node, delete_node, order_car, cancel_order_car, rent_car, return_car
 
 
 @app.route('/')
@@ -52,19 +52,23 @@ def ROUTE_order_car(customer_id, car_id):
     return order_car(customer_id=customer_id, car_id=car_id)
 
 @app.route('/cancel-order-car/<customer_id>/<car_id>')
-def ROUTE_cancel_order():
-    pass
+def ROUTE_cancel_order(customer_id, car_id):
+    return cancel_order_car(customer_id=customer_id, car_id=car_id)
 
 @app.route('/rent-car/<customer_id>/<car_id>')
-def ROUTE_rent_car():
-    pass
+def ROUTE_rent_car(customer_id, car_id):
+    return rent_car(customer_id=customer_id, car_id=car_id)
 
-@app.route('/return-car/<customer_id>/<car_id>')
-def ROUTE_return_car():
-    pass
+@app.route('/return-car/<customer_id>/<car_id>/<car_status>')
+def ROUTE_return_car(customer_id, car_id, car_status):
+    return return_car(customer_id=customer_id, car_id=car_id, car_status=car_status)
 
 
-#Testing
-@app.route('/test-if-booked/<customer_id>')
-def test_booking(customer_id):
-    return has_booked(customer_id=customer_id)
+# #Testing
+# @app.route('/test-if-booked/<customer_id>')
+# def test_booking(customer_id):
+#     return has_booked(customer_id=customer_id)
+
+# @app.route('/test-if-rented/<customer_id>/<car_id>')
+# def test_renting(customer_id, car_id):
+#     return has_rented(customer_id=customer_id, car_id=car_id)
