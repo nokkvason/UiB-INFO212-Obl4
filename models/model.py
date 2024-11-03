@@ -19,33 +19,49 @@ def create_node(category, data):
         return 'None/invalid category for node creation'
 
 def read_node(category, data):
-    pass
+    if category == 'customer':
+        return read_customer(data)
+    elif category == 'employee':
+        return read_employee(data)
+    elif category == 'car':
+        return read_car(data)
+    else:
+        return 'None/invalid category for node reading'
 
 def update_node(category, data):
-    pass
+    if category == 'customer':
+        pass
+    elif category == 'employee':
+        pass
+    elif category == 'car':
+        pass
+    else:
+        return 'None/invalid category for node update'
 
 def delete_node(category, id):
     if category == 'customer':
         return delete_customer(id)
-    if category == 'employee':
+    elif category == 'employee':
         return delete_employee(id)
-    if category == 'car':
+    elif category == 'car':
         return delete_car(id)
+    else:
+        return 'None/invalid category for node deletion'
 
 
 # CRUD functions per category
 # Create
 def create_customer(data):
     with get_connected() as driver:
-        driver.execute_query('CREATE (a:User {name: $name, age: $age, address: $address})', 
-                             name=data['name'], age=data['age'], address=data['address'])
+        driver.execute_query('CREATE (a:User {name: $name, age: $age, address: $address, id: $id})', 
+                             name=data['name'], age=data['age'], address=data['address'], id=data['id'])
 
     return 'Creating User node ' + data['name']
 
 def create_employee(data):
     with get_connected() as driver:
-        driver.execute_query('CREATE (a:Employee {name: $name, age: $age, address: $address, branch: $branch})', 
-                             name=data['name'], age=data['age'], address=data['address'], branch=data['branch'])
+        driver.execute_query('CREATE (a:Employee {name: $name, age: $age, address: $address, branch: $branch, id: $id})', 
+                             name=data['name'], age=data['age'], address=data['address'], branch=data['branch'], id=data['id'])
         
     return 'Creating Employee node ' + data['name']
 
@@ -58,6 +74,36 @@ def create_car(data):
 
 
 #Read
+def read_customer(form):
+    data = []
+    with get_connected() as driver:
+        records = driver.execute_query(f'MATCH (u:User {{name: {form["name"]}}}) RETURN u').records
+    
+    for record in records:
+        data.append(record.data())
+
+    return data
+
+def read_employee(form):
+    data = []
+    with get_connected() as driver:
+        records = driver.execute_query(f'MATCH (e:Employee {{name: {form["name"]}}}) RETURN e').records
+
+    for record in records:
+        data.append(record.data())
+    
+    return data
+
+def read_car(form):
+    data = []
+    with get_connected() as driver:
+        records = driver.execute_query(f'MATCH (c:Car {{id: {form["id"]}}}) RETURN c').records
+
+    for record in records:
+        data.append(record.data())
+
+    return data
+        
 
 
 #Update
